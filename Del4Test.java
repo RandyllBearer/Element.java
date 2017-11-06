@@ -1,10 +1,12 @@
 //Java imports
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-//JUnit imports
+//JUnit and Mockito imports
 import org.junit.*;
 import static org.junit.Assert.*;
+import org.mockito.*;
 
 /**
  *
@@ -34,6 +36,8 @@ public class Del4Test {
 	*
 	BEGIN TESTS
 	The twelve required software tests begin here...
+	Note: the program returns empty array lists for invalid inputs
+	any line that returns an empty list is handled and printed as "Could not create"
 	*
 	*/
 
@@ -41,18 +45,37 @@ public class Del4Test {
 	/*
 	TEST 1:
 	Ensure that a simple valid string returns a non-empty array list
+	The array list is then checked for the correct value
 	*/
 	
     @Test
     public void testSimpleInputValid() {
-		ArrayList<String> t = new ArrayList<String>();
 		boolean checkMe;
+		ArrayList<String> t = new ArrayList<String>();
+		ArrayList<String> test = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
 		
-		t = _e.getAbbreviations("Laboon");
+		// Mock the hash map values used in this case
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
+		// Simulate the getAbbreviations method
+		t = _e.getAbbreviations("Laboon", hmap);
+		
+		// Create the test list to check against
+		test.add("LA");
+		test.add("B");
+		test.add("O");
+		test.add("O");
+		test.add("N");
+		
+		// Ensure that the array is not empty and that it equals
+		// the desired output.
 		checkMe = t.isEmpty();
-		
 		assertFalse(checkMe);
+		assertEquals(t, test);
     }
 	
 	/*
@@ -62,13 +85,19 @@ public class Del4Test {
 	
     @Test
     public void testSimpleInputNotValid() {
-		ArrayList<String> t = new ArrayList<String>();
 		boolean checkMe;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
 		
-		t = _e.getAbbreviations("Bill");
+		//Mock of the hash map value that SHOULD be valid
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
 		
+		// Testing of the function, for which get() should return null
+		// when the hash map is called
+		t = _e.getAbbreviations("Bill", hmap);
+		
+		// Ensure that an empty array is returned for this invalid input
 		checkMe = t.isEmpty();
-		
 		assertTrue(checkMe);
     }
 	
@@ -83,10 +112,47 @@ public class Del4Test {
     public void testNotCaseSensitive() {
 		ArrayList<String> t1 = new ArrayList<String>();
 		ArrayList<String> t2 = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
 		
-		t1 = _e.getAbbreviations("Laboon");
-		t2 = _e.getAbbreviations("lAbOoN");
+		// Mocking the required hashmap
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Simulation using indentical strings with different cases
+		t1 = _e.getAbbreviations("Laboon", hmap);
+		t2 = _e.getAbbreviations("lAbOoN", hmap);
+		
+		// Assert that both strings return a value and that the values are equal
+		assertFalse(t1.isEmpty());
+		assertFalse(t2.isEmpty());
 		assertEquals(t1, t2);
     }
 	
+	/*
+	TEST 4:
+	Ensure that if a file has no content, or a line is empty,
+	that an empty array list is generated
+	*/
+	@Test
+    public void testSimpleInputEmpty() {
+		boolean checkMe;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Adding some values so the map is not empty
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Testing of the function with an empty string
+		t = _e.getAbbreviations("", hmap);
+		
+		// Ensure that an empty array is returned for this invalid input
+		checkMe = t.isEmpty();
+		assertTrue(checkMe);
+    }
+
 }

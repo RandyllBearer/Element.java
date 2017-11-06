@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.ArrayList;	//https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
 
 public class Element{
-	//Declare globally used hashmap
-	static HashMap<String, String> hmap = new HashMap<String, String>();
-	
 	//Initiate a FileReader and BufferedReader object using the filePath argument
 	public static BufferedReader openFile(String path){
 		BufferedReader inFile = null;
@@ -30,7 +27,8 @@ public class Element{
 	
 	
 	//Fills hmap with the contents of elements.txt
-	public static void fillGlobalElementMap(BufferedReader inFile){
+	public static HashMap<String, String> getElementMap(BufferedReader inFile){
+		HashMap<String, String> hmap = new HashMap<String, String>();
 		String line;
 		
 		try{
@@ -44,18 +42,23 @@ public class Element{
 			System.out.println("ERROR: Element.java could not read elements.txt");
 			System.exit(3);
 		}
+		
+		return hmap;
 	}
 	
 	// Creates the array list of atom abbreviations
 	// Returns the list for use in unit testing
-	public static ArrayList<String> getAbbreviations(String _line){
+	// Unacceptable in
+	public static ArrayList<String> getAbbreviations(String _line, HashMap<String, String> hmap){
 		ArrayList<String> _a = new ArrayList<String>();
 		String testLine, result;
 		int startIndex = 0;
 		int endIndex = 2;
 		
-		// prints the current line
-		System.out.println(_line);
+		// removes of all non-alphabetical characters
+		// eliminates case sensitivity
+		_line = _line.replaceAll("[^A-Za-z]+","");	
+		_line = _line.toUpperCase();
 		
 		//parse line for matching abbreviations using substring()
 		while(startIndex < _line.length()){
@@ -82,49 +85,55 @@ public class Element{
 		return _a;
 	}
 	
-	// Gets the element associated with a specific abbreviation
-	public static String getElement(String _e){
-			return hmap.get(_e);
+	public static String buildAbbreviationString(ArrayList<String> _a){
+		String _ba = "";
+		
+		_ba += "\n" + _a.get(0);
+		for (int i = 1; i < _a.size(); i++) {
+			_ba += " - " + _a.get(i);
+		}
+		
+		return _ba;
+	}
+	
+	public static String buildElementString(ArrayList<String> _a, HashMap<String, String> _h){
+		String _be = "";
+		
+		_be += "\n" + _h.get(_a.get(0));
+		for (int i = 1; i < _a.size(); i++) {
+			_be += " - " + _h.get(_a.get(i));
+		}
+		
+		return _be;
 	}
 	
 	//Reads in a string from user input, attempts to parse all the individual characters and return that array
-	public static void run(BufferedReader inFile){
+	public static void run(BufferedReader inElements, BufferedReader inFile){
+		HashMap<String, String> hmap = new HashMap<String, String>();
 		ArrayList<String> abbreviations = new ArrayList<String>();
-		ArrayList<String> elements = new ArrayList<String>();
 		String line;
+		
+		// uses the imported element data to create a hashmap
+		hmap = getElementMap(inElements);
 		
 		try{
 			while((line = inFile.readLine()) != null){
-				// removes of all non-alphabetical characters
-				// eliminates case sensitivity
-				line = line.replaceAll("[^A-Za-z]+","");	
-				line = line.toUpperCase();
+				System.out.println("\n");	//Just for cleaner formatting
 				
 				// get the abbreviations and reset elements list
-				abbreviations = getAbbreviations(line);
-				elements.clear();
+				abbreviations = getAbbreviations(line, hmap);
 				
-				//Print out abbreviations line / I - N - AC
+				// Do the following if getAbbreviations determines the line is valid
+				// Prints a line of abbreviations then a line of actual elements
 				if(!abbreviations.isEmpty()){
-					System.out.print("\n" + abbreviations.get(0));
-					elements.add(getElement(abbreviations.get(0)));
+					String p1 = buildAbbreviationString(abbreviations);
+					System.out.println(p1);
 					
-					for (int i = 1; i < abbreviations.size(); i++) {
-						System.out.print(" - " + abbreviations.get(i));
-						elements.add(getElement(abbreviations.get(i)));
-					}
-					
-					System.out.print("\n" + elements.get(0));
-					for (int i = 1; i < elements.size(); i++) {
-						System.out.print(" - " + elements.get(i));
-					}
-					
+					String p2 = buildElementString(abbreviations, hmap);
+					System.out.println(p2);
 				}else{
 					System.out.println("\nCould not create name '"+line+"' out of elements.");
 				}
-				
-				
-				System.out.println("");	//Just for cleaner formatting
 			}
 		}catch(IOException ioe){
 			System.out.println("ERROR: Element.java could not read user input file");
@@ -151,11 +160,8 @@ public class Element{
 		BufferedReader inUser = openFile(filePath);
 		BufferedReader inElements = openFile("elements.txt");
 		
-		// uses the imported element data to create a hashmap
-		fillGlobalElementMap(inElements);
-		
 		//runs the program using the user input
-		run(inUser);
+		run(inElements, inUser);
 		
 		//Cleanup
 		try{
