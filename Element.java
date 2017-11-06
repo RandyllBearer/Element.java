@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.ArrayList;	//https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
 
 public class Element{
-	//https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html
-	static HashMap<String, String> hmap = new HashMap<String, String>();
 	
 	//Initiate a FileReader and BufferedReader object using the filePath argument
 	public static BufferedReader openFile(String path){
@@ -29,7 +27,8 @@ public class Element{
 	}
 	
 	//Fills hmap with the contents of elements.txt
-	public static void loadElements(BufferedReader inFile){
+	public static HashMap<String, String> getElements(BufferedReader inFile){
+		HashMap<String, String> hmap = new HashMap<String, String>();
 		String line;
 		
 		try{
@@ -43,10 +42,13 @@ public class Element{
 			System.out.println("ERROR: Element.java could not read elements.txt");
 			System.exit(2);
 		}
+		
+		return hmap;
 	}
 	
 	//Reads in a string from user input, attempts to parse all the individual characters and return that array
-	public static void loadInput(BufferedReader inFile){
+	public static void run(BufferedReader inElements, BufferedReader inFile){
+		HashMap<String, String> hmap = new HashMap<String, String>();
 		String line;
 		String testLine;
 		String result;
@@ -54,6 +56,9 @@ public class Element{
 		ArrayList<String> elements;
 		int startIndex;
 		int endIndex;
+		
+		//Parse from elements.txt - updates hmap
+		hmap = getElements(inElements);
 		
 		try{
 			while((line = inFile.readLine()) != null){
@@ -64,6 +69,8 @@ public class Element{
 				//get rid of all non-alphabetical characters + case-insensitive
 				line = line.replaceAll("[^A-Za-z]+","");	
 				line = line.toUpperCase();	
+				
+				System.out.println(line);
 				
 				//parse line for matching abbreviations using substring()
 				startIndex = 0;
@@ -78,7 +85,7 @@ public class Element{
 						startIndex = endIndex;
 					}else{
 						if(endIndex - startIndex == 2){	//there is no abbreviation
-							System.out.println("\nERROR: Could not translate for " + line);
+							System.out.println("\nCould not create name '"+line+"' out of elements.");
 							flag = 1;	//don't print out a partial attempt
 							break;
 						}else{	//try a 2 letter combination
@@ -90,7 +97,7 @@ public class Element{
 				//Print out abbreviations line / I - N - AC
 				if(flag == 0){
 					int i = 0;
-					while(i < abbreviations.size()){
+					while(i < abbreviations.size()){ 
 						if(i == 0){
 							System.out.print("\n" + abbreviations.get(0));
 						}else{
@@ -118,6 +125,9 @@ public class Element{
 			System.out.println("ERROR: Element.java could not read user input file");
 			System.exit(2);
 		}
+		
+		System.out.println("TEST: HMAP SIZE = " + hmap.size());	//TEST should be 118 from elements.txt
+
 	}
 	
 	public static void main(String[] args){
@@ -135,17 +145,12 @@ public class Element{
 			System.exit(2);
 		}
 		
-		//Open elements.txt: https://docs.oracle.com/javase/7/docs/api/java/io/BufferedReader.html
+		//Open both the elements file and the user specified input
 		BufferedReader inElements = openFile("elements.txt");
-		
-		//Parse from elements.txt - updates hmap
-		loadElements(inElements);
-		
-		//Open User File
-		BufferedReader inUser = openFile(filePath);
+		BufferedReader inUser = openFile(filePath); 
 		
 		//Parse input from user file
-		loadInput(inUser);
+		run(inElements, inUser);
 		
 		//Cleanup
 		try{
@@ -155,7 +160,7 @@ public class Element{
 			System.out.println("ERROR: Element.java could not close FileReader");
 			System.exit(3);
 		}
-		System.out.println("TEST: HMAP SIZE = " + hmap.size());	//TEST should be 118 from elements.txt
+		
 		System.exit(0);
 	}
 	
