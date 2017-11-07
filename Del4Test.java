@@ -36,8 +36,13 @@ public class Del4Test {
 	*
 	BEGIN TESTS
 	The twelve required software tests begin here...
+	
 	Note: the program returns empty array lists for invalid inputs
-	any line that returns an empty list is handled and printed as "Could not create"
+	any line that returns an empty list is handled and printed as "Could not create... etc."
+	
+	Note: the program logic is set up to attempt to build the string in the forward
+	direction of steps of two, then one.  If this fails, then it is possible that a permutation
+	of element combinations was missed.  So, it is then attempted to build the string backwords.
 	*
 	*/
 
@@ -49,7 +54,7 @@ public class Del4Test {
 	*/
 	
     @Test
-    public void testSimpleInputValid() {
+    public void testSimpleInputValidFwd() {
 		boolean checkMe;
 		ArrayList<String> t = new ArrayList<String>();
 		ArrayList<String> test = new ArrayList<String>();
@@ -77,6 +82,7 @@ public class Del4Test {
 		assertFalse(checkMe);
 		assertEquals(t, test);
     }
+	
 	
 	/*
 	TEST 2:
@@ -130,6 +136,7 @@ public class Del4Test {
 		assertEquals(t1, t2);
     }
 	
+	
 	/*
 	TEST 4:
 	Ensure that if a file has no content, or a line is empty,
@@ -155,4 +162,53 @@ public class Del4Test {
 		assertTrue(checkMe);
     }
 
+	
+	/*
+	TEST 5:
+	Given an appropriate list of element abbreviations, ensure
+	that the correct string is built and returned from buildAbbreviationString()
+	*/
+	@Test
+    public void testBuildAbbreviationsValid() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		
+		// Adding some values to the array list
+		t.add("LA");
+		t.add("B");
+		t.add("O");
+		t.add("O");
+		t.add("N");
+		
+		// Testing of the function with a valid array list
+		testStr = _e.buildAbbreviationString(t);
+		
+		// Ensure that an empty array is returned for this invalid input
+		assertEquals(testStr, "\nLA - B - O - O - N");
+    }
+	
+	/*
+	TEST 5:
+	Given an appropriate list of element abbreviations, ensure
+	that the correct string is built and returned from buildElementString()
+	*/
+	@Test
+    public void testBuildElementsValid() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		
+		// Adding some values to the array list
+		t.add("LA");
+		t.add("B");
+		t.add("O");
+		t.add("O");
+		t.add("N");
+		
+		// Testing of the function with a valid array list
+		testStr = _e.buildElementString(t);
+		
+		// Ensure that an empty array is returned for this invalid input
+		assertEquals(testStr, "\nLanthanum - Boron - Oxygen - Oxygen - Nitrogen");
+    }
+	
 }

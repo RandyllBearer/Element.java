@@ -48,8 +48,9 @@ public class Element{
 	
 	// Creates the array list of atom abbreviations
 	// Returns the list for use in unit testing
-	// Unacceptable in
-	public static ArrayList<String> getAbbreviations(String _line, HashMap<String, String> hmap){
+	// The list is attempted to be built forward in steps of two, then one
+	// If and only if this fails, the list is attempted to be built backwards
+	public static ArrayList<String> getAbbreviationsFwd(String _line, HashMap<String, String> hmap){
 		ArrayList<String> _a = new ArrayList<String>();
 		String testLine, result;
 		int startIndex = 0;
@@ -78,6 +79,48 @@ public class Element{
 				}else{
 					//try a 1 letter combination
 					endIndex = endIndex - 1;
+				}
+			}
+		}
+		
+		return _a;
+	}
+	
+	// If the list could not be built forward in steps of one, then two
+	// we then attempt to build it backwards.
+	// This covers all remaining permutations
+	public static ArrayList<String> getAbbreviationsBwd(String _line, HashMap<String, String> hmap){
+		ArrayList<String> _a = new ArrayList<String>();
+		String testLine, result;
+		
+		// removes of all non-alphabetical characters
+		// eliminates case sensitivity
+		_line = _line.replaceAll("[^A-Za-z]+","");	
+		_line = _line.toUpperCase();
+		
+		// define the incidices
+		int startIndex = _line.length()-2;
+		int endIndex = _line.length();
+		
+		//parse line for matching abbreviations using substring()
+		while(startIndex >= 0){
+			testLine = _line.substring(startIndex, endIndex);
+			result = hmap.get(testLine);
+			
+			if(result != null){
+				_a.add(0,testLine);
+				
+				endIndex = startIndex;
+				if(startIndex == 1){startIndex-=1;}
+				else{startIndex-=2;}
+			}else{
+				// if there is no abbreviation, return an empty list
+				if(endIndex - startIndex == 1){	
+					_a.clear();
+					return _a;
+				}else{
+					//try a 1 letter combination
+					startIndex = startIndex + 1;
 				}
 			}
 		}
@@ -121,7 +164,10 @@ public class Element{
 				System.out.println("\n");	//Just for cleaner formatting
 				
 				// get the abbreviations and reset elements list
-				abbreviations = getAbbreviations(line, hmap);
+				abbreviations = getAbbreviationsFwd(line, hmap);
+				if(abbreviations.isEmpty()){
+					abbreviations = getAbbreviationsBwd(line, hmap);
+				}
 				
 				// Do the following if getAbbreviations determines the line is valid
 				// Prints a line of abbreviations then a line of actual elements
