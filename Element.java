@@ -1,17 +1,10 @@
-//TO DO
-// 1. Better implement printing out results, kind of a mess right now
-// 2. Better implement a message which says that we cannot parse a certain input word like "John"
-// 3. Profile the program
-// 4. Write the Paper
-// 5. Better exception handling
-
-
 //Imports
 import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;	//https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
 
 public class Element{
+	
 	//Initiate a FileReader and BufferedReader object using the filePath argument
 	public static BufferedReader openFile(String path){
 		BufferedReader inFile = null;
@@ -47,11 +40,14 @@ public class Element{
 	}
 	
 	
-	// Creates the array list of atom abbreviations
-	// Returns the list for use in unit testing
-	// The list is attempted to be built forward using the stepping algorithm
-	// If and only if this fails, the list is attempted to be built backwards
-	// The direction depends on the 'forward' flag passed to this function
+	/*
+	Creates the array list of atom abbreviations
+	Returns the list for use in unit testing
+	The list is attempted to be built forward using the stepping algorithm
+	If and only if this fails, the list is attempted to be built backwards using a recursive call
+	The direction depends on the 'forward' boolean flag passed to this function
+	By attempting the same steps forward and backward all permutations should be covered
+	*/
 	public static ArrayList<String> getAbbreviations(String _line, HashMap<String, String> hmap, boolean forward){
 		ArrayList<String> _a = new ArrayList<String>();
 		String testLine, result;
@@ -88,8 +84,8 @@ public class Element{
 					if(endIndex > _line.length()){endIndex=_line.length();}
 				}else{
 					// if there is no abbreviation, return an empty list
-					if(endIndex - startIndex == 1){	
-						_a.clear();
+					if(endIndex - startIndex == 1){
+						_a = getAbbreviations(_line, hmap, false);
 						return _a;
 					}else{
 						//try a 1 letter combination if the 2 letter doesn't exist
@@ -130,12 +126,18 @@ public class Element{
 	
 	
 	// Method used a valid abbreviation list to built a string output for the abbreviations
-	public static String buildAbbreviationString(ArrayList<String> _a){
+	// Error checks that the element abbreviations exist using the hashmap
+	public static String buildAbbreviationString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _ba = "";
 		
 		_ba += "\n" + _a.get(0);
 		for (int i = 1; i < _a.size(); i++) {
-			_ba += " - " + _a.get(i);
+			if(_h.get(_a.get(i)) == null){
+				_ba = "";
+				return _ba;
+			}else{
+				_ba += " - " + _a.get(i);
+			}
 		}
 		
 		return _ba;
@@ -143,19 +145,25 @@ public class Element{
 	
 	
 	// Method used a valid abbreviation list to built a string output for the elements
+	// Error checks that the element abbreviations exist using the hashmap
 	public static String buildElementString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _be = "";
 		
 		_be += "\n" + _h.get(_a.get(0));
 		for (int i = 1; i < _a.size(); i++) {
-			_be += " - " + _h.get(_a.get(i));
+			if(_h.get(_a.get(i)) == null){
+				_be = "";
+				return _be;
+			}else{
+				_be += " - " + _h.get(_a.get(i));
+			}
 		}
 		
 		return _be;
 	}
 	
 	
-	//Reads in a string from user input, attempts to parse all the individual characters and return that array
+	// the run method iterates over lines in the file to generate the appropriate output
 	public static void run(BufferedReader inElements, BufferedReader inFile){
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		ArrayList<String> abbreviations = new ArrayList<String>();
@@ -170,18 +178,27 @@ public class Element{
 				
 				// get the abbreviations and reset elements list
 				abbreviations = getAbbreviations(line, hmap, true);
-				if(abbreviations.isEmpty()){
-					abbreviations = getAbbreviations(line, hmap, false);
-				}
 				
-				// If the line returns valid abbreviations, print
-				// Else, 
+				// If this line in the file returns valid abbreviations, print the line
+				// Else, print that the line could not be built
 				if(!abbreviations.isEmpty()){
-					String p1 = buildAbbreviationString(abbreviations);
-					System.out.println(p1);
+					// Attempt to build the element abbreviations string.
+					// If this cannot be done, print an error
+					String p1 = buildAbbreviationString(abbreviations, hmap);
+					if(p1 == ""){
+						System.out.println("An error occured.  Could not create name '"+line+"'");
+					}else{
+						System.out.println(p1);
+					}
 					
+					// Attempt to build the elements string.
+					// If this cannot be done, print an error
 					String p2 = buildElementString(abbreviations, hmap);
-					System.out.println(p2);
+					if(p2 == ""){
+						System.out.println("An error occured.  Could not create name '"+line+"'");
+					}else{
+						System.out.println(p2);
+					}
 				}else{
 					System.out.println("\nCould not create name '"+line+"' out of elements.");
 				}
@@ -192,10 +209,12 @@ public class Element{
 		}
 	}
 	
+	
+	//The main method - initialized the program
 	public static void main(String[] args){
 		String filePath = "";
 		
-		//Get Arguments
+		//Get Arguments and handle input errors
 		if(args.length != 1){
 			System.out.println("ERROR: Element.java can only accept one String argument defining file path.");
 			System.exit(1);
@@ -207,14 +226,15 @@ public class Element{
 			System.exit(2);
 		}
 		
-		//Open both the elements file and the user specified input
+		// Open both the elements file and the user specified input file
+		// Error handling occurs in the openFile() method
 		BufferedReader inUser = openFile(filePath);
 		BufferedReader inElements = openFile("elements.txt");
 		
-		//runs the program using the user input
+		// runs the program using the user input
 		run(inElements, inUser);
 		
-		//Cleanup
+		// handle errors associated with closing the filereader
 		try{
 			inElements.close();
 			inUser.close();
