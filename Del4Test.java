@@ -67,7 +67,7 @@ public class Del4Test {
 		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
 		// Simulate the getAbbreviations method
-		t = _e.getAbbreviations("Laboon", hmap);
+		t = _e.getAbbreviations("Laboon", hmap, true);
 		
 		// Create the test list to check against
 		test.add("LA");
@@ -100,7 +100,7 @@ public class Del4Test {
 		
 		// Testing of the function, for which get() should return null
 		// when the hash map is called
-		t = _e.getAbbreviations("Bill", hmap);
+		t = _e.getAbbreviations("Bill", hmap, true);
 		
 		// Ensure that an empty array is returned for this invalid input
 		checkMe = t.isEmpty();
@@ -127,8 +127,8 @@ public class Del4Test {
 		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
 		// Simulation using indentical strings with different cases
-		t1 = _e.getAbbreviations("Laboon", hmap);
-		t2 = _e.getAbbreviations("lAbOoN", hmap);
+		t1 = _e.getAbbreviations("Laboon", hmap, true);
+		t2 = _e.getAbbreviations("lAbOoN", hmap, true);
 		
 		// Assert that both strings return a value and that the values are equal
 		assertFalse(t1.isEmpty());
@@ -155,7 +155,7 @@ public class Del4Test {
 		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
 		// Testing of the function with an empty string
-		t = _e.getAbbreviations("", hmap);
+		t = _e.getAbbreviations("", hmap, true);
 		
 		// Ensure that an empty array is returned for this invalid input
 		checkMe = t.isEmpty();
@@ -196,6 +196,7 @@ public class Del4Test {
     public void testBuildElementsValid() {
 		String testStr;
 		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
 		
 		// Adding some values to the array list
 		t.add("LA");
@@ -204,8 +205,14 @@ public class Del4Test {
 		t.add("O");
 		t.add("N");
 		
+		// Add the appropriate values to the hashmap
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
 		// Testing of the function with a valid array list
-		testStr = _e.buildElementString(t);
+		testStr = _e.buildElementString(t, hmap);
 		
 		// Ensure that an empty array is returned for this invalid input
 		assertEquals(testStr, "\nLanthanum - Boron - Oxygen - Oxygen - Nitrogen");

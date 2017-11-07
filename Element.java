@@ -46,88 +46,90 @@ public class Element{
 		return hmap;
 	}
 	
+	
 	// Creates the array list of atom abbreviations
 	// Returns the list for use in unit testing
-	// The list is attempted to be built forward in steps of two, then one
+	// The list is attempted to be built forward using the stepping algorithm
 	// If and only if this fails, the list is attempted to be built backwards
-	public static ArrayList<String> getAbbreviationsFwd(String _line, HashMap<String, String> hmap){
+	// The direction depends on the 'forward' flag passed to this function
+	public static ArrayList<String> getAbbreviations(String _line, HashMap<String, String> hmap, boolean forward){
 		ArrayList<String> _a = new ArrayList<String>();
 		String testLine, result;
+		
+		// removes of all non-alphabetical characters
+		// eliminates case sensitivity
+		_line = _line.replaceAll("[^A-Za-z]+","");	
+		_line = _line.toUpperCase();
+		
+		// starting point chosen based on direction
 		int startIndex = 0;
 		int endIndex = 2;
-		
-		// removes of all non-alphabetical characters
-		// eliminates case sensitivity
-		_line = _line.replaceAll("[^A-Za-z]+","");	
-		_line = _line.toUpperCase();
-		
-		//parse line for matching abbreviations using substring()
-		while(startIndex < _line.length()){
-			if(endIndex > _line.length()){endIndex=_line.length();}
-			testLine = _line.substring(startIndex, endIndex);
-			result = hmap.get(testLine);
-			
-			if(result != null){
-				_a.add(testLine);
-				startIndex = endIndex;
-				endIndex = startIndex + 2;
-			}else{
-				// if there is no abbreviation, return an empty list
-				if(endIndex - startIndex == 1){	
-					_a.clear();
-					return _a;
-				}else{
-					//try a 1 letter combination
-					endIndex = endIndex - 1;
-				}
-			}
+		if(!forward){
+			startIndex = _line.length()-2;
+			endIndex = _line.length();
 		}
 		
-		return _a;
-	}
-	
-	// If the list could not be built forward in steps of one, then two
-	// we then attempt to build it backwards.
-	// This covers all remaining permutations
-	public static ArrayList<String> getAbbreviationsBwd(String _line, HashMap<String, String> hmap){
-		ArrayList<String> _a = new ArrayList<String>();
-		String testLine, result;
-		
-		// removes of all non-alphabetical characters
-		// eliminates case sensitivity
-		_line = _line.replaceAll("[^A-Za-z]+","");	
-		_line = _line.toUpperCase();
-		
-		// define the incidices
-		int startIndex = _line.length()-2;
-		int endIndex = _line.length();
-		
-		//parse line for matching abbreviations using substring()
-		while(startIndex >= 0){
-			testLine = _line.substring(startIndex, endIndex);
-			result = hmap.get(testLine);
-			
-			if(result != null){
-				_a.add(0,testLine);
+		// Choose to apply the algorithm in the forward or backward
+		// direction.  Sometimes only one will work, so it has to be
+		// possible to check both using this function
+		if(forward){
+			while(startIndex < _line.length()){
+				// get a group of one or two letters to test
+				testLine = _line.substring(startIndex, endIndex);
+				result = hmap.get(testLine);
 				
-				endIndex = startIndex;
-				if(startIndex == 1){startIndex-=1;}
-				else{startIndex-=2;}
-			}else{
-				// if there is no abbreviation, return an empty list
-				if(endIndex - startIndex == 1){	
-					_a.clear();
-					return _a;
+				if(result != null){
+					// add element to list if it exists
+					_a.add(testLine);
+					
+					// set new indices
+					startIndex = endIndex;
+					endIndex = startIndex + 2;
+					if(endIndex > _line.length()){endIndex=_line.length();}
 				}else{
-					//try a 1 letter combination
-					startIndex = startIndex + 1;
+					// if there is no abbreviation, return an empty list
+					if(endIndex - startIndex == 1){	
+						_a.clear();
+						return _a;
+					}else{
+						//try a 1 letter combination if the 2 letter doesn't exist
+						endIndex = endIndex - 1;
+					}
+				}
+			}
+		}else{
+			while(startIndex >= 0){
+				// get a group of one or two letters to test
+				testLine = _line.substring(startIndex, endIndex);
+				result = hmap.get(testLine);
+				
+				if(result != null){
+					// add element to list if it exists
+					_a.add(0,testLine);
+					
+					// set new indices
+					endIndex = startIndex;
+					if(startIndex == 1){startIndex-=1;}
+					else{startIndex-=2;}
+				}else{
+					// if there is no abbreviation, return an empty list
+					if(endIndex - startIndex == 1){	
+						_a.clear();
+						return _a;
+					}else{
+						//try a 1 letter combination if the 2 letter doesn't exist
+						startIndex = startIndex + 1;
+					}
 				}
 			}
 		}
 		
+		// if the abbreviations exist, return the final array list
 		return _a;
 	}
 	
+	
+	// Method used a valid abbreviation list to built a string output for the abbreviations
 	public static String buildAbbreviationString(ArrayList<String> _a){
 		String _ba = "";
 		
@@ -139,6 +141,8 @@ public class Element{
 		return _ba;
 	}
 	
+	
+	// Method used a valid abbreviation list to built a string output for the elements
 	public static String buildElementString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _be = "";
 		
@@ -149,6 +153,7 @@ public class Element{
 		
 		return _be;
 	}
+	
 	
 	//Reads in a string from user input, attempts to parse all the individual characters and return that array
 	public static void run(BufferedReader inElements, BufferedReader inFile){
@@ -164,13 +169,13 @@ public class Element{
 				System.out.println("\n");	//Just for cleaner formatting
 				
 				// get the abbreviations and reset elements list
-				abbreviations = getAbbreviationsFwd(line, hmap);
+				abbreviations = getAbbreviations(line, hmap, true);
 				if(abbreviations.isEmpty()){
-					abbreviations = getAbbreviationsBwd(line, hmap);
+					abbreviations = getAbbreviations(line, hmap, false);
 				}
 				
-				// Do the following if getAbbreviations determines the line is valid
-				// Prints a line of abbreviations then a line of actual elements
+				// If the line returns valid abbreviations, print
+				// Else, 
 				if(!abbreviations.isEmpty()){
 					String p1 = buildAbbreviationString(abbreviations);
 					System.out.println(p1);
