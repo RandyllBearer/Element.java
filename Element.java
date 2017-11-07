@@ -130,13 +130,27 @@ public class Element{
 	public static String buildAbbreviationString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _ba = "";
 		
-		_ba += "\n" + _a.get(0);
-		for (int i = 1; i < _a.size(); i++) {
-			if(_h.get(_a.get(i)) == null){
-				_ba = "";
-				return _ba;
+		for(int i = 0; i < _a.size(); i++) {
+			String toAdd = _a.get(i);
+			if(i==0){
+				if(toAdd.length() == 2){
+					String partA = toAdd.substring(0,1);
+					String partB = toAdd.substring(1,2);
+					partB = partB.toLowerCase();
+					_ba += partA+partB;
+				}else{
+					_ba += toAdd;
+				}
 			}else{
-				_ba += " - " + _a.get(i);
+				toAdd = _a.get(i);
+				if(toAdd.length() == 2){
+					String partA = toAdd.substring(0,1);
+					String partB = toAdd.substring(1,2);
+					partB = partB.toLowerCase();
+					_ba += " - " + partA+partB;
+				}else{
+					_ba += " - " + toAdd;
+				}
 			}
 		}
 		
