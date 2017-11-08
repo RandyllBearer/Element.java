@@ -1,11 +1,17 @@
 //Imports
 import java.io.*;
 import java.util.HashMap;
-import java.util.ArrayList;	//https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
+import java.util.ArrayList;
 
+
+//Accepts a single String argument denoting the path of the desired file.
+//Element.java parses that file and for every line attempts to split it
+//into its corresponding abbreviation of elements. If no such split can be
+//done, Element.java informs the user.
 public class Element{
 	
 	//Initiate a FileReader and BufferedReader object using the filePath argument
+	//Catches any exceptions these operations might throw.
 	public static BufferedReader openFile(String path){
 		BufferedReader inFile = null;
 		try{
@@ -20,6 +26,7 @@ public class Element{
 	
 	
 	//Fills hmap with the contents of elements.txt
+	//key = abbreviation, value = element name
 	public static HashMap<String, String> getElementMap(BufferedReader inFile){
 		HashMap<String, String> hmap = new HashMap<String, String>();
 		String line;
@@ -120,12 +127,11 @@ public class Element{
 			}
 		}
 		
-		// if the abbreviations exist, return the final array list
 		return _a;
 	}
 	
 	
-	// Method used a valid abbreviation list to built a string output for the abbreviations
+	// Method used a valid abbreviation list to build a string output for the abbreviations
 	// Error checks that the element abbreviations exist using the hashmap
 	public static String buildAbbreviationString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _ba = "";
@@ -167,7 +173,7 @@ public class Element{
 	}
 	
 	
-	// Method used a valid abbreviation list to built a string output for the elements
+	// Method uses a valid abbreviation list to build a string output for the elements
 	// Error checks that the element abbreviations exist using the hashmap
 	public static String buildElementString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _be = "";
@@ -231,7 +237,7 @@ public class Element{
 	}
 	
 	
-	//The main method - initialized the program
+	//The main method - initializes the program
 	public static void main(String[] args){
 		String filePath = "";
 		
@@ -255,7 +261,8 @@ public class Element{
 		// runs the program using the user input
 		run(inElements, inUser);
 		
-		// handle errors associated with closing the filereader
+		//handle errors associated with closing the filereader
+		//and closes any open files.
 		try{
 			inElements.close();
 			inUser.close();
