@@ -130,7 +130,16 @@ public class Element{
 	public static String buildAbbreviationString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _ba = "";
 		
+		if(_a.isEmpty()){
+			_ba = "";
+			return _ba;
+		}
+		
 		for(int i = 0; i < _a.size(); i++) {
+			if(_h.get(_a.get(i)) == null){
+				_ba = "";
+				return _ba;
+			}
 			String toAdd = _a.get(i);
 			if(i==0){
 				if(toAdd.length() == 2){
@@ -162,6 +171,11 @@ public class Element{
 	// Error checks that the element abbreviations exist using the hashmap
 	public static String buildElementString(ArrayList<String> _a, HashMap<String, String> _h){
 		String _be = "";
+		
+		if(_a.isEmpty()){
+			_be = "";
+			return _be;
+		}
 		
 		_be += "\n" + _h.get(_a.get(0));
 		for (int i = 1; i < _a.size(); i++) {
@@ -196,22 +210,15 @@ public class Element{
 				// If this line in the file returns valid abbreviations, print the line
 				// Else, print that the line could not be built
 				if(!abbreviations.isEmpty()){
-					// Attempt to build the element abbreviations string.
+					// Attempt to build the output strings.
 					// If this cannot be done, print an error
 					String p1 = buildAbbreviationString(abbreviations, hmap);
-					if(p1 == ""){
-						System.out.println("An error occured.  Could not create name '"+line+"'");
-					}else{
-						System.out.println(p1);
-					}
-					
-					// Attempt to build the elements string.
-					// If this cannot be done, print an error
 					String p2 = buildElementString(abbreviations, hmap);
-					if(p2 == ""){
+					if(p1 == "" || p2 == ""){
 						System.out.println("An error occured.  Could not create name '"+line+"'");
 					}else{
-						System.out.println(p2);
+						String output = p1 + "\n" + p2;
+						System.out.println(output);
 					}
 				}else{
 					System.out.println("\nCould not create name '"+line+"' out of elements.");

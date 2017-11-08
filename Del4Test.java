@@ -44,8 +44,8 @@ public class Del4Test {
 	direction in steps of two, using a step of one if the next grouping of two doesn't exist.
 	If this fails, then it is still possible that a permutation of element combinations
 	was missed.  So, it is recursively attempted to apply this logic to the string in the
-	backwards direction. Our unit tests are designed to ensure that both strings for which
-	the forward logic and backwards logic is needed can be built.
+	backwards direction. Our unit tests are designed to ensure that strings for which
+	the forward logic is needed and strings for which backwards logic is needed can both be built.
 	*
 	*/
 
@@ -92,8 +92,8 @@ public class Del4Test {
 	/*
 	TEST 2:
 	Ensure that a simple valid string returns a non-empty array list.
-	This string ('Creat') can be built in the backwards direction  but NOT
-	the forward direction using the getAbbreviations() step logic.
+	This string ('Creat') can be built in the backwards direction, but NOT
+	the forward direction using the getAbbreviations() step logic
 	(Check combination of two, then one).  This test checks that if the forward
 	logic fails, then the backwards logic is applied. The returned array list is checked
 	for the correct value.
@@ -108,16 +108,16 @@ public class Del4Test {
 		
 		// Mock the hash map values used in this case
 		Mockito.when(hmap.get("C")).thenReturn("Carbon");
-		Mockito.when(hmap.get("Re")).thenReturn("Rhenium");
-		Mockito.when(hmap.get("At")).thenReturn("Astatine");
+		Mockito.when(hmap.get("RE")).thenReturn("Rhenium");
+		Mockito.when(hmap.get("AT")).thenReturn("Astatine");
 
 		// Simulate the getAbbreviations method
 		t = _e.getAbbreviations("Creat", hmap, true);
 		
 		// Create the test list to check against
 		test.add("C");
-		test.add("Re");
-		test.add("At");
+		test.add("RE");
+		test.add("AT");
 		
 		// Ensure that the array is not empty and that it equals
 		// the desired output.
@@ -128,13 +128,13 @@ public class Del4Test {
 	
 	
 	/*
-	TEST 2:
+	TEST 3:
 	Ensure that a simple NON-VALID string returns an EMPTY array list.
 	This string ('Bill') cannot be built using either the forward or backwards steps.
 	*/
 	
     @Test
-    public void testSimpleInputNotValidForward() {
+    public void testSimpleInputNotValid() {
 		boolean checkMe;
 		ArrayList<String> t = new ArrayList<String>();
 		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
@@ -144,8 +144,7 @@ public class Del4Test {
 		Mockito.when(hmap.get("B")).thenReturn("Boron");
 		Mockito.when(hmap.get("I")).thenReturn("Iodine");
 		
-		// Testing of the function, for which get() should return null
-		// when the hash map is called
+		// Testing of the function for an invalid input
 		t = _e.getAbbreviations("Bill", hmap, true);
 		
 		// Ensure that an empty array is returned for this invalid input
@@ -155,11 +154,65 @@ public class Del4Test {
 	
 	
 	/*
-	TEST 3:
-	Ensure that the program is case-insensitive by asserting two identical
+	TEST 4:
+	Ensure that lines containing odd symbols and otherwise
+	uncommon text return an empty array list.  In this test, the
+	sample string "[%-!&*$]" is used.
+	*/
+	@Test
+    public void testUncommonInput() {
+		boolean checkMe;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Add some valid values to the hashmap
+		Mockito.when(hmap.get("BI")).thenReturn("Bismuth");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("I")).thenReturn("Iodine");
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Testing of the function with an UNCOMMON string
+		t = _e.getAbbreviations("[%-!&*$]", hmap, true);
+		
+		// Ensure that an empty array is returned for this invalid input
+		checkMe = t.isEmpty();
+		assertTrue(checkMe);
+    }
+	
+	
+	/*
+	TEST 5:
+	Ensure that if a file has no content, or a line is empty,
+	that an empty array list is generated
+	*/
+	@Test
+    public void testSimpleInputEmptyForward() {
+		boolean checkMe;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Adding some values so the map is not empty
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Testing of the function with an EMPTY string
+		t = _e.getAbbreviations("", hmap, true);
+		
+		// Ensure that an empty array is returned for this invalid input
+		checkMe = t.isEmpty();
+		assertTrue(checkMe);
+    }
+	
+	
+	/*
+	TEST 6:
+	Ensure that the program is case-insensitive by asserting that two identical
 	inputs with different cases yield the same abbreviation
 	*/
-	
     @Test
     public void testNotCaseSensitive() {
 		ArrayList<String> t1 = new ArrayList<String>();
@@ -181,36 +234,10 @@ public class Del4Test {
 		assertFalse(t2.isEmpty());
 		assertEquals(t1, t2);
     }
-	
-	
-	/*
-	TEST 4:
-	Ensure that if a file has no content, or a line is empty,
-	that an empty array list is generated
-	*/
-	@Test
-    public void testSimpleInputEmptyForward() {
-		boolean checkMe;
-		ArrayList<String> t = new ArrayList<String>();
-		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
-		
-		// Adding some values so the map is not empty
-		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
-		Mockito.when(hmap.get("B")).thenReturn("Boron");
-		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
-		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
-		
-		// Testing of the function with an empty string
-		t = _e.getAbbreviations("", hmap, true);
-		
-		// Ensure that an empty array is returned for this invalid input
-		checkMe = t.isEmpty();
-		assertTrue(checkMe);
-    }
 
 	
 	/*
-	TEST 5:
+	TEST 7:
 	Given an appropriate list of element abbreviations, ensure
 	that the correct string is built and returned from buildAbbreviationString()
 	*/
@@ -233,19 +260,18 @@ public class Del4Test {
 		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
 		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
-		// Testing of the function with a valid array list
+		// Testing of the function with a valid array list and hashmap
 		testStr = _e.buildAbbreviationString(t, hmap);
 		
-		// Ensure that an empty array is returned for this invalid input
-		assertEquals(testStr, "\nLA - B - O - O - N");
+		// Ensure that the appropriate string is returned
+		assertEquals(testStr, "La - B - O - O - N");
     }
 	
 	
 	/*
-	TEST 6:
+	TEST 8:
 	Given an appropriate list of element abbreviations, ensure
 	that the correct string is built and returned from buildElementString()
-	This requires a mock hashmap
 	*/
 	@Test
     public void testBuildElementsValid() {
@@ -266,11 +292,128 @@ public class Del4Test {
 		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
 		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
 		
-		// Testing of the function with a valid array list
+		// Testing of the function with a valid array list and hashmap
 		testStr = _e.buildElementString(t, hmap);
 		
-		// Ensure that an empty array is returned for this invalid input
+		// Ensure that the appropriate string is returned
 		assertEquals(testStr, "\nLanthanum - Boron - Oxygen - Oxygen - Nitrogen");
     }
 	
+	
+	/*
+	TEST 9:
+	Given an INVALID list of element abbreviations, ensure
+	that buildAbbreviationString() returns an empty string.
+	Using invalid string "Bill".
+	*/
+	@Test
+    public void testBuildAbbreviationsNotValid() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Adding some values to the array list
+		t.add("B");
+		t.add("I");
+		t.add("L");
+		t.add("L");
+		
+		// Add the appropriate values to the hashmap
+		Mockito.when(hmap.get("BI")).thenReturn("Bismuth");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("I")).thenReturn("Iodine");
+		
+		// Testing of the function with an INVALID array list and hashmap
+		testStr = _e.buildAbbreviationString(t, hmap);
+		
+		// Ensure that an empty string is returned for this invalid input
+		assertEquals(testStr, "");
+    }
+	
+	
+	/*
+	TEST 10:
+	Given an INVALID list of element abbreviations, ensure
+	that buildElementString() also returns an empty string.
+	Using invalid string "Bill".
+	*/
+	@Test
+    public void testBuildElementsNotValid() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Adding some values to the array list
+		t.add("B");
+		t.add("I");
+		t.add("L");
+		t.add("L");
+		
+		// Add the appropriate values to the hashmap
+		Mockito.when(hmap.get("BI")).thenReturn("Bismuth");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("I")).thenReturn("Iodine");
+		
+		// Testing of the function with an INVALID array list
+		testStr = _e.buildElementString(t, hmap);
+		
+		// Ensure that an empty array is returned for this invalid input
+		assertEquals(testStr, "");
+    }
+	
+	
+	/*
+	TEST 11:
+	Given an EMPTY list of element abbreviations, ensure
+	that buildAbbreviationString() returns an empty string.
+	*/
+	@Test
+    public void testBuildAbbreviationsEmpty() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Add some valid values to the hashmap
+		Mockito.when(hmap.get("BI")).thenReturn("Bismuth");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("I")).thenReturn("Iodine");
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Testing of the function with an EMPTY array list
+		t.clear();
+		testStr = _e.buildAbbreviationString(t, hmap);
+		
+		// Ensure that an empty string is returned for this invalid input
+		assertEquals(testStr, "");
+    }
+	
+	
+	/*
+	TEST 12:
+	Given an EMPTY list of element abbreviations, ensure
+	that buildElementString() also returns an empty string.
+	*/
+	@Test
+    public void testBuildElementsEmpty() {
+		String testStr;
+		ArrayList<String> t = new ArrayList<String>();
+		HashMap<String, String> hmap = Mockito.mock(HashMap.class);
+		
+		// Add some valid values to the hashmap
+		Mockito.when(hmap.get("BI")).thenReturn("Bismuth");
+		Mockito.when(hmap.get("B")).thenReturn("Boron");
+		Mockito.when(hmap.get("I")).thenReturn("Iodine");
+		Mockito.when(hmap.get("LA")).thenReturn("Lanthanum");
+		Mockito.when(hmap.get("O")).thenReturn("Oxygen");
+		Mockito.when(hmap.get("N")).thenReturn("Nitrogen");
+		
+		// Testing of the function with an EMPTY array list
+		t.clear();
+		testStr = _e.buildElementString(t, hmap);
+		
+		// Ensure that an empty array is returned for this invalid input
+		assertEquals(testStr, "");
+    }
 }
